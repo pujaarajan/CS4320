@@ -1,5 +1,7 @@
 import java.util.AbstractMap;
 import java.util.Map.Entry;
+import java.util.Arrays;
+
 
 /**
  * BPlusTree Class Assumptions: 1. No duplicate keys inserted 2. Order D:
@@ -17,26 +19,26 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @return value
 	 */
 	public T search(K key) {
-		return sTraverse(key, cNode);
+		return sTraverse(key, root);
 	}
 
 
 	private T sTraverse(K key, Node cNode){
 		if( cNode.isLeafNode == true){
-			LeafNode leaf = (LeafNode) cNode;
+			LeafNode<K,T> leaf = (LeafNode) cNode;
 			for(int i = 0; i< leaf.keys.size(); i++ ){
-				if( leaf.keys[i]== key){
-					return leaf.keys.values[i];
+				if( leaf.keys.get(i)== key){
+					return leaf.values.get(i);
 				}
 			}
 			return null;
 		}
 		else{
-			node = (IndexNode) cNode;
-			for(Node<K,T> childNode: cNode ){
-				int len = childNode.key.size();
-				if (childNode.key[0]<=key && childNode.key[len-1] >key){
-					sTraverse(key, cNode);
+			IndexNode<K,T> node = (IndexNode) cNode;
+			for(Node childNode: node.children ){
+				int len = childNode.keys.size();
+				if ((childNode.keys.get(0).compareTo(key) !=0) && (childNode.keys.get(len-1).compareTo(key) >0)){
+					sTraverse(key, childNode);
 				} 
 			}
 		}
@@ -60,23 +62,23 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		int i = 0;
 		if(n.isLeafNode){
 			for(K fKey : n.keys){
-				if( fKey < key ){
-					n.keys.add(fKey, i);
-					if( n.isOveflowed()){
-						splitLeafNode(n);
+				if( (fKey.compareTo(key))<0 ){
+					n.keys.set(i,fKey);
+					if( n.isOverflowed()){
+						splitLeafNode( (LeafNode) n);
 					}
-					return AbstractMap.SimpleEntry(null,null)  ;
+					return (new AbstractMap.SimpleEntry<K, Node<K,T>>(null,null))  ;
 				}
 				i++;
 			}
 		}
 		else{
-			for(K nKey: keys){
-				if(fKey< key){
-					Map.Entry<K, Node<K,T>> entry =  insertHelp(key,value, n.children[i+1] );
+			for(K nKey: n.keys){
+				if(nKey.compareTo(key)<0){
+					AbstractMap.SimpleEntry<K, Node<K,T>> entry =  insertHelp(key,value, n.children[i+1] );
 					if( entry.getKey != null){
-						 n.keys.add(entry.key,i);
-						 n.children.add(entry.value, i+1);
+						 n.keys.set(entry.key,i);
+						 n.children.set(entry.value, i+1);
 						if(n.isOveflowed()){
 							splitIndexNode(n);
 						}
@@ -106,13 +108,13 @@ public class BPlusTree<K extends Comparable<K>, T> {
 
 		for(K key: lKeys){
 			if( arrayCount== splitPoint) {
-				keys.add(key);
-				values.add(leaf.values[arrayCount]);
+				keys.set(key);
+				values.set(leaf.values[arrayCount]);
 				splitKey= key;
 			}
 			else if (arrayCount> splitPoint) {
-				keys.add(key);
-				values.add(leaf.values[arrayCount]);
+				keys.set(key);
+				values.set(leaf.values[arrayCount]);
 			}
 			arrayCount++;
 		}
@@ -121,7 +123,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		leaf.values = Array.copyOfRange(leaf.values,0, (splitPoint-1));
 
 		rNode.LeafNode(keys, values);
-		return AbstractMap.SimpleEntry(splitKey, rNode);
+		return new AbstractMap.SimpleEntry<K, Node<K,T>>(splitKey, rNode);
 	}
 
 	/**
@@ -148,16 +150,16 @@ public class BPlusTree<K extends Comparable<K>, T> {
 				rNode.IndexNode(key,index[i],index[i+1]);
 			}
 			else if(arrayCount> (splitPoint+1) ) {
-				keys.add(key);
-				children.add(index.children[i]);
+				keys.set(key);
+				children.set(index.children[i]);
 			}
 			arrayCount++;
 		}
 
 		children = Array.copyOfRange(children,1,(children.size()-1));
-		children.add(index.children[(index.children.size()-1)]);
+		children.set(index.children[(index.children.size()-1)]);
 		rNode.IndexNode(keys, children );
-		return AbstractMap.SimpleEntry(splitKey, rNode);
+		return new AbstractMap.SimpleEntry<K, Node<K,T>>(splitKey, rNode);
 
 	}
     
@@ -170,30 +172,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 */
 	public void delete(K key) {
 
-		for( int i=0; i< root.size()-1 ; i++ ){
-			if ()
-		}
-
-			if key.isUnderflowed {
-				if key.isLeafNode{
-					//handleLeafNodeUnderflow()
-				}
-				else if key.isIndexNode{
-					//handleIndexNodeOverflow()
-				}
-
-
-
-
-
-
-
-
-
-
-				//handleLeafNodeUnderflow
-
-			}
+		deleteHelp(key, n, null);
 
 
 	}
@@ -201,25 +180,36 @@ public class BPlusTree<K extends Comparable<K>, T> {
 
 	public void deleteHelp( K key, Node<K,T> n, Node<K,T> parent){
 		
+		int k =0;
 		if (n.isLeafNode){
 			for( int i=0; i< n.keys.size()-1 ; i++ ){
 				if(n.keys[i] == key){
-					n.keys.remove[i];
-					n.values.remove[i];
+					n.keys.remove(i);
+					n.values.remove(i);
 					if( n.isUnderflowed()){
-						handleLeafNodeUnderflow(n.previosleaf, n, parent );
+						int result = handleLeafNodeUnderflow(n.previosleaf, n, parent );
+						if(result != -1 && parent!=null){
+							parent.remove(result);							
+						}
 					}
 				}
 			}
 		}
-
 	else{
-		for( i=0; i< n.keys.size()-2 ; i++ ){
-			if( n.keys[i]<key && (n.keys+1>= key)){
-				deleteHelp(K )
+		for(K fKey: n.keys){
+			if(fKey> key){
+				if(n.isUnderflowed()){ 
+					int result = handleIndexNodeOverflow ();
+						if( result != -1 && parent!= null){
+							parent.remove(result);
+						}
+					deleteHelp(K,n.children[k+1], n);
+				}
 			}
+			k++;
+		}
 	}
-}}
+}
 
 
 
@@ -244,8 +234,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		int i;
 
 		if ((leftSize+rightSize) <= (2*D) ){
-			left.keys = ArrayUtils.addAll(left.keys, right.keys);
-			left.values =ArrayUtils.addAll(left.values, right.values);
+			left.keys = ArrayUtils.setAll(left.keys, right.keys);
+			left.values =ArrayUtils.setAll(left.values, right.values);
 			
 			left.nextLeaf= right.nextLeaf;
 
@@ -264,8 +254,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		int distAmount = sizeInd-splitPoint;
 
 		for(i=0; i< distAmount; i++ ){
-			left.keys.add(right.keys[i]);
-			left.values.add(right.values[i]);
+			left.keys.set(right.keys[i]);
+			left.values.set(right.values[i]);
 		}
 
 		K distKey = right.keys[0];
@@ -279,8 +269,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		right.keys = Array.copyOfRange(right.keys, splitPoint-1, sizeInd-1);
 		right.values = Array.copyOfRange(right.values, splitPoint-1, sizeInd-1);
 
-		left.keys.add( distKey);
-		left.values.add(distVal);
+		left.keys.set( distKey);
+		left.values.set(distVal);
 
  		return -1;
 
@@ -317,8 +307,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 
 		if( (leftSize+rightSize+1)<=(2*d)){
 
-			leftIndex.keys = ArrayUtils.addAll(leftIndex.keys, rightIndex.keys);
-			leftIndex.children = ArrayUtils.addAll(leftIndex.children,  Array.copyOfRange(rightIndex.children, 1, (rightSize-1))  );				
+			leftIndex.keys = ArrayUtils.setAll(leftIndex.keys, rightIndex.keys);
+			leftIndex.children = ArrayUtils.setAll(leftIndex.children,  Array.copyOfRange(rightIndex.children, 1, (rightSize-1))  );				
 			return parentKey;
 		}
 		
@@ -329,13 +319,13 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		V distChild = right.values[0];
 		splitPoint = (D/2);
 
-		left.keys.add(parentKey[i]);
+		left.keys.set(parentKey[i]);
 
 		int distAmount = sizeInd-splitPoint;
 
 		for(i=0; i< distAmount; i++ ){
-			left.keys.add(right.keys[i]);
-			left.children.add(right.children[i]);
+			left.keys.set(right.keys[i]);
+			left.children.set(right.children[i]);
 			right.keys.remove(0);
 			right.children.remove(0);
 		}
