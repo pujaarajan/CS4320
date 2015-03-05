@@ -159,8 +159,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 			arrayCount++;
 		}
 
-		leaf.keys =  new ArrayList<K> (leaf.keys.subList(0, (splitPoint-1)));
-		leaf.values =  new ArrayList<T> (leaf.values.subList(0, (splitPoint-1)));
+		leaf.keys =  new ArrayList<K> (leaf.keys.subList(0, (splitPoint)));
+		leaf.values =  new ArrayList<T> (leaf.values.subList(0, (splitPoint)));
 
 		rNode = new LeafNode(keys, values);
 		return new AbstractMap.SimpleEntry<K, Node<K,T>>(splitKey, rNode);
