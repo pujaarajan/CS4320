@@ -168,6 +168,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		rNode.previousLeaf = leaf;
 		rNode.nextLeaf = leaf.nextLeaf;
 		leaf.nextLeaf = rNode;
+		
 		return new AbstractMap.SimpleEntry<K, Node<K,T>>(splitKey, rNode);
 	}
 
@@ -216,7 +217,6 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 */
 	public void delete(K key) {
 			if(root !=null){
-			
 				if( root.isLeafNode){
 					for( int i=0; i< root.keys.size() ; i++ ){
 						if(root.keys.get(i) == key){
@@ -241,8 +241,9 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	
 
 	public void deleteHelp( K key, Node<K,T> n, Node<K,T> parent){
-		
+	
 		int k =0;
+
 		if (n.isLeafNode){
 			for( int i=0; i< n.keys.size(); i++ ){
 				if(n.keys.get(i) == key){
@@ -258,14 +259,34 @@ public class BPlusTree<K extends Comparable<K>, T> {
 			}
 		}
 	else{
+		IndexNode<K,T> prevNode =null;
+
+
+		for(K nKey: parent.keys){
+			if( (nKey.compareTo(n.keys.get(0))) >1){
+ 				if(k-1==-1){
+ 					prevNode= ((IndexNode) ((IndexNode) parent).children.get(parent.keys.size()-1) );
+					break;
+ 				} ; 
+			
+				}
+			k++;
+			if (k==parent.keys.size()){
+				prevNode= ((IndexNode) ((IndexNode) parent).children.get( ((IndexNode) parent).children.size()-1 ));
+			}
+		}
+
+		k=0;
 		for(K fKey: n.keys){
 			if( (fKey.compareTo(key)) >1){
+				deleteHelp(key, ((Node<K,T>) ((IndexNode)n).children.get(k)), n);
+
+	
 				if(n.isUnderflowed()){ 
-					int result = handleIndexNodeUnderflow (((IndexNode)n), ((IndexNode)n), ((IndexNode) parent) );
+					int result = handleIndexNodeUnderflow (prevNode, ((IndexNode)n), ((IndexNode) parent) );
 						if( result != -1 && parent!= null){
 							parent.keys.remove(result);
 						}
-					deleteHelp(key, ((Node<K,T>) ((IndexNode)n).children.get(k+1)), n);
 				}
 			}
 			k++;
@@ -367,6 +388,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		for(K nKey: parent.keys){
 			if(nKey.compareTo(leftIndex.keys.get(leftSize-1))>1 ){
 				parentKey = k;
+				break;
 			}
 			k++;
 		}
