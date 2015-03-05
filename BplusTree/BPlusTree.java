@@ -59,6 +59,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	public void insert(K key, T value) {
 		if (root == null){
 			root= new LeafNode(key,value);
+			((LeafNode)root).previousLeaf = ((LeafNode)root);
+			((LeafNode)root).nextLeaf= ((LeafNode)root);
 		}
 		else if ( root.isLeafNode==true){
 		  AbstractMap.Entry<K, Node<K,T>> result =  insertHelp(key,value, root);
@@ -163,6 +165,9 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		leaf.values =  new ArrayList<T> (leaf.values.subList(0, (splitPoint)));
 
 		rNode = new LeafNode(keys, values);
+		rNode.previousLeaf = leaf;
+		rNode.nextLeaf = leaf.nextLeaf;
+		leaf.nextLeaf = rNode;
 		return new AbstractMap.SimpleEntry<K, Node<K,T>>(splitKey, rNode);
 	}
 
@@ -210,24 +215,42 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @param key
 	 */
 	public void delete(K key) {
+			if(root !=null){
+			
+				if( root.isLeafNode){
+					for( int i=0; i< root.keys.size() ; i++ ){
+						if(root.keys.get(i) == key){
+							root.keys.remove(i);
+							((LeafNode)root).values.remove(i);
+						}
+					}
+				}
+				else{
+					for(int i=0; i<root.keys.size(); i++){
+						if(root.keys.get(i).compareTo(key)>0){
+							deleteHelp(key, ((Node<K,T>) ((IndexNode)root).children.get(i)), root);
+						} 
+						else if (i==root.keys.size()-1){
+							deleteHelp(key, ((Node<K,T>) ((IndexNode)root).children.get(i+1)),root);
+					}
+				}
+			}
+		}
 
-		deleteHelp(key, root, null);
-
-
-	}
-
+}
+	
 
 	public void deleteHelp( K key, Node<K,T> n, Node<K,T> parent){
 		
 		int k =0;
 		if (n.isLeafNode){
-			for( int i=0; i< n.keys.size()-1 ; i++ ){
+			for( int i=0; i< n.keys.size(); i++ ){
 				if(n.keys.get(i) == key){
 					n.keys.remove(i);
-					  ((LeafNode)n).values.remove(i);
+					((LeafNode)n).values.remove(i);
 					if( n.isUnderflowed()){
-						int result = handleLeafNodeUnderflow(((LeafNode)n).previousLeaf, ((LeafNode)n), ((IndexNode) parent) );
-						if(result != -1 && parent!=null){
+						int result = handleLeafNodeUnderflow( ((LeafNode)n).previousLeaf, ((LeafNode) n), ((IndexNode) parent) );
+						if(result != -1){
 							parent.keys.remove(result);							
 						}
 					}
@@ -280,7 +303,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 
 			for(K nKey: parent.keys){
 				if( (nKey.compareTo(left.keys.get(leftSize-1)))>0 ){
-					return i;
+					return (i);
 				}
 				i++;
 			}
