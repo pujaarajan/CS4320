@@ -101,7 +101,6 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		}
 		else{
 			for(K nKey : n.keys){
-				i++;
 				if(nKey.compareTo(nKey)>0){
 					AbstractMap.SimpleEntry<K, Node<K,T>> entry =  ((AbstractMap.SimpleEntry) insertHelp(key,value, ((Node)((IndexNode)n).children.get(i+1)) ));
 					if( entry.getKey() != null){
@@ -114,7 +113,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 					return (new AbstractMap.SimpleEntry<K, Node<K,T>>(null,null));	
 
 				}
-				else if(i==n.keys.size()){
+				else if(i==n.keys.size()-1){
 					AbstractMap.SimpleEntry<K, Node<K,T>> entry =  ((AbstractMap.SimpleEntry) insertHelp(key,value, ((Node)((IndexNode)n).children.get(i)) ));
 					if( entry.getKey() != null){
 						 n.keys.add(entry.getKey());
@@ -125,6 +124,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 					}
 					return (new AbstractMap.SimpleEntry<K, Node<K,T>>(null,null));	
 				}
+				i++;
 			}
 		}
 		return null;
