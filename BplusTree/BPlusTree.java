@@ -1,6 +1,5 @@
 import java.util.AbstractMap;
 import java.util.Map.Entry;
-import java.util.Arrays;
 import java.util.ArrayList;
 
 
@@ -21,6 +20,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @return value
 	 */
 	public T search(K key) {
+
 		return sTraverse(key, root);
 	}
 
@@ -57,7 +57,12 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @param value
 	 */
 	public void insert(K key, T value) {
+		if (root == null){
+			root= new LeafNode(key,value);
+		}
+		else{
 		insertHelp(key,value,root);
+	}
 
 	}
 
