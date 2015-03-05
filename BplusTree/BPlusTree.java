@@ -80,16 +80,15 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		int i = 0;
 		if(n.isLeafNode){
 			for(K fKey : n.keys){
-				i++;
 				if(fKey.compareTo(key)>0 ){
-					n.keys.set(i,key);
-					((LeafNode) n).values.set(i,value);
+					n.keys.add(i,key);
+					((LeafNode) n).values.add(i,value);
 					if( n.isOverflowed()){
 						return splitLeafNode( (LeafNode) n);
 					}
 					return (new AbstractMap.SimpleEntry<K, Node<K,T>>(null,null));
 				}
-				else if (i==n.keys.size()) {
+				else if (i==n.keys.size()-1) {
 					n.keys.add(key);
 					((LeafNode) n).values.add(value);
 					if( n.isOverflowed()){	
@@ -97,6 +96,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 					}
 					return (new AbstractMap.SimpleEntry<K, Node<K,T>>(null,null));	
 				}
+				i++;
 			}
 		}
 		else{
@@ -105,8 +105,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 				if(nKey.compareTo(nKey)>0){
 					AbstractMap.SimpleEntry<K, Node<K,T>> entry =  ((AbstractMap.SimpleEntry) insertHelp(key,value, ((Node)((IndexNode)n).children.get(i+1)) ));
 					if( entry.getKey() != null){
-						 n.keys.set(i,entry.getKey());
-						 ((IndexNode)n).children.set(i+1,entry.getValue());
+						 n.keys.add(i,entry.getKey());
+						 ((IndexNode)n).children.add(i+1,entry.getValue());
 						if( n.isOverflowed()){
 							return splitIndexNode( ((IndexNode)n));
 						}
@@ -168,7 +168,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		rNode.previousLeaf = leaf;
 		rNode.nextLeaf = leaf.nextLeaf;
 		leaf.nextLeaf = rNode;
-		
+
 		return new AbstractMap.SimpleEntry<K, Node<K,T>>(splitKey, rNode);
 	}
 
