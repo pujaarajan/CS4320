@@ -247,7 +247,6 @@ public class BPlusTree<K extends Comparable<K>, T> {
 			left.keys = ArrayUtils.addAll(left.keys, right.keys);
 			left.values =ArrayUtils.addAll(left.values, right.values);
 			
-
 			left.nextLeaf= right.nextLeaf;
 
 			for(K nKey: parent.keys){
@@ -310,36 +309,40 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		int parSize = parent.keys.size();
 		int parentKey;
 
-		for (int i =0; i<parsize;i+=){
-			if( (parent.keys[i]<= right.keys[0]) && (parent.keys[i]>left.keys[(leftSize-1)]){
+		for(K nKey: parent.keys){
+			if(nKey>left.keys[leftSize-1] ){
 				parentkey = i;
 			}
 		}
 
-		if( (leftSize+rightSize<=(2*d)){
+		if( (leftSize+rightSize+1)<=(2*d)){
 
 			leftIndex.keys = ArrayUtils.addAll(leftIndex.keys, rightIndex.keys);
-			leftIndex.children = ArrayUtils.addAll(leftIndex.children,  Array.copyOfRange(rightIndex.children, 1, (rightSize-1)  );				
+			leftIndex.children = ArrayUtils.addAll(leftIndex.children,  Array.copyOfRange(rightIndex.children, 1, (rightSize-1))  );				
 			return parentKey;
 		}
 		
+
 
 
 		K distKey = right.keys[0];
 		V distChild = right.values[0];
 		splitPoint = (D/2);
 
-		left.keys.add(parentKey[i], 0 )
+		left.keys.add(parentKey[i]);
 
-		for( int k = 0; i< splitPoint; i++){
-			left.keys.add(right.keys[i],0);
-			left.children.add(right.children[],0);
+		int distAmount = sizeInd-splitPoint;
+
+		for(i=0; i< distAmount; i++ ){
+			left.keys.add(right.keys[i]);
+			left.children.add(right.children[i]);
 			right.keys.remove(0);
 			right.children.remove(0);
 		}
 
-		parent.keys[i] = rightIndex[splitPoint];
+		parent.keys[i] = right.keys[0];
+		return -1;
 		}
-	}
+	
 
 }
