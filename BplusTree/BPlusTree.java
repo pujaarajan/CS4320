@@ -51,6 +51,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 * @param value
 	 */
 	public void insert(K key, T value) {
+		if leaf 
 
 	}
 
@@ -129,11 +130,33 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 */
 	public void delete(K key) {
 
+			if key.isUnderflowed {
+				if key.isLeafNode{
+					//handleLeafNodeUnderflow()
+				}
+				else if key.isIndexNode{
+					//handleIndexNodeOverflow()
+				}
+
+
+
+
+
+
+
+
+
+
+				//handleLeafNodeUnderflow
+
+			}
+
+
 	}
 
 	/**
 	 * TODO Handle LeafNode Underflow (merge or redistribution)
-	 * 
+	 * isUnderflowed
 	 * @param left
 	 *            : the smaller node
 	 * @param right
@@ -145,9 +168,49 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 */
 	public int handleLeafNodeUnderflow(LeafNode<K,T> left, LeafNode<K,T> right,
 			IndexNode<K,T> parent) {
-		return -1;
+
+
+		int leftSize = left.keys.size();
+		int rightSize = right.key.size();
+
+		if ((leftSize+rightSize) <= (2*D) ){
+			Arraylist<K,T> newChild;
+			left.IndexNode(ArrayUtils.addAll(left.keys, right.keys), ArrayUtils.addAll(left.values, right.values));
+
+			left.nextLeaf= right.nextLeaf;
+
+			for(int i = 0; i<parent.keys.size(); i++){
+				if(parent.keys[i]>left.keys[0] && parent.keys[i]>=left.keys[0]){
+					return parent.keys[i];
+				}
+			}
+
+		}
+
+		int  sizeInd = (rightSize-1);
+
+		K distKey = right.keys[0];
+		V distVal = right.values[0];
+
+		right.keys = Array.copyOfRange(right.keys, 1, sizeInd)
+		right.values = Array.copyOfRange(right.values, 1, sizeInd);
+
+		left.keys.add( distKey);
+		left.values.add(distVal);
+
+
+		for (int i=0; i < parent.keys.size(), i++){
+			if(parent.keys[i] == distKey){
+				parent.keys[i] = distKey;				
+			}
+ 		}
+
+ 		return -1;
 
 	}
+
+
+	
 
 	/**
 	 * TODO Handle IndexNode Underflow (merge or redistribution)
@@ -163,7 +226,42 @@ public class BPlusTree<K extends Comparable<K>, T> {
 	 */
 	public int handleIndexNodeUnderflow(IndexNode<K,T> leftIndex,
 			IndexNode<K,T> rightIndex, IndexNode<K,T> parent) {
-		return -1;
+		
+		int leftSize = leftIndex.keys.size();
+		int rightSize =  rightIndex.keys.size();
+		int parSize = parent.keys.size();
+		int parentKey;
+
+		for (int i =0; i<parsize;i+=){
+			if( (parent.keys[i]<= right.keys[0]) && (parent.keys[i]>left.keys[(leftSize-1)]){
+				parentkey = i;
+			}
+		}
+
+		if( (leftSize+rightSize<=(2*d)){
+
+			leftIndex.keys = ArrayUtils.addAll(leftIndex.keys, rightIndex.keys);
+			leftIndex.children = ArrayUtils.addAll(leftIndex.children,  Array.copyOfRange(rightIndex.children, 1, (rightSize-1)  );				
+			return parentKey;
+		}
+		
+
+
+		K distKey = right.keys[0];
+		V distChild = right.values[0];
+		splitPoint = (D/2);
+
+		left.keys.add(parentKey[i], 0 )
+
+		for( int k = 0; i< splitPoint; i++){
+			left.keys.add(right.keys[i],0);
+			left.children.add(right.children[],0);
+			right.keys.remove(0);
+			right.children.remove(0);
+		}
+
+		parent.keys[i] = rightIndex[splitPoint];
+		}
 	}
 
 }
