@@ -160,6 +160,8 @@ public class BPlusTree<K extends Comparable<K>, T> {
 		return AbstractMap.SimpleEntry(splitKey, rNode);
 
 	}
+    
+
 
 	/**
 	 * TODO Delete a key/value pair from this B+Tree
@@ -217,7 +219,7 @@ public class BPlusTree<K extends Comparable<K>, T> {
 				deleteHelp(K )
 			}
 	}
-}
+}}
 
 
 
@@ -239,38 +241,47 @@ public class BPlusTree<K extends Comparable<K>, T> {
 
 		int leftSize = left.keys.size();
 		int rightSize = right.key.size();
+		int i;
 
 		if ((leftSize+rightSize) <= (2*D) ){
-			Arraylist<K,T> newChild;
-			left.IndexNode(ArrayUtils.addAll(left.keys, right.keys), ArrayUtils.addAll(left.values, right.values));
+			left.keys = ArrayUtils.addAll(left.keys, right.keys);
+			left.values =ArrayUtils.addAll(left.values, right.values);
+			
 
 			left.nextLeaf= right.nextLeaf;
 
-			for(int i = 0; i<parent.keys.size(); i++){
-				if(parent.keys[i]>left.keys[0] && parent.keys[i]>=left.keys[0]){
-					return parent.keys[i];
+			for(K nKey: parent.keys){
+				if(nKey>left.keys[leftSize-1] ){
+					return i;
 				}
+				i++;
 			}
 
 		}
 
+		int splitPoint = (D/2);
+
 		int  sizeInd = (rightSize-1);
+		int distAmount = sizeInd-splitPoint;
+
+		for(i=0; i< distAmount; i++ ){
+			left.keys.add(right.keys[i]);
+			left.values.add(right.values[i]);
+		}
 
 		K distKey = right.keys[0];
-		V distVal = right.values[0];
 
-		right.keys = Array.copyOfRange(right.keys, 1, sizeInd)
-		right.values = Array.copyOfRange(right.values, 1, sizeInd);
-
-		left.keys.add( distKey);
-		left.values.add(distVal);
-
-
-		for (i=0; i < parent.keys.size(), i++){
-			if(parent.keys[i] == distKey){
+		for(K fKey: parent.keys){
+				if(fKey>left.keys[leftSize-1] ){
 				parent.keys[i] = distKey;				
 			}
  		}
+
+		right.keys = Array.copyOfRange(right.keys, splitPoint-1, sizeInd-1);
+		right.values = Array.copyOfRange(right.values, splitPoint-1, sizeInd-1);
+
+		left.keys.add( distKey);
+		left.values.add(distVal);
 
  		return -1;
 
